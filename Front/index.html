@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Chat UI Screen</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+        @font-face {
+            font-family: 'HS-Regular';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/HS-Regular.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'GmarketSansMedium';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        .chat-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .chat-box {
+            background-color: #f2f2f2;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow-y: scroll;
+            height: 1000px;
+        }
+
+        .chat-message {
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .chat-message p {
+            margin: 0;
+            padding: 0;
+            font-family: GmarketSansMedium, sans-serif;
+        }
+
+        .chat-input {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .chat-input button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .chat-input button:hover {
+            background-color: #3e8e41;
+        }
+
+        .assistant {
+            color: blue;
+        }
+
+        
+        #intro {
+            font-family: HS-Regular, sans-serif;
+        }
+
+        #intro input {
+            margin-bottom: 16px;
+        }
+
+        #intro #date {
+            font-family: GmarketSansMedium, sans-serif;
+            width: 150px;
+        }
+
+        #intro select {
+            margin-bottom: 16px;
+            font-family: GmarketSansMedium, sans-serif;
+            width: 150px;
+        }
+
+        #intro button {
+            font-family: HS-Regular, sans-serif;
+            cursor: pointer;
+            width: 200px;
+            height: 50px;
+            font-size: 20px;
+            box-shadow: 0 5px 5px #ddd;
+            border:none;
+        }
+
+        #intro button:hover {
+            transition: all 0.25s ease-in-out;
+            background-color: white;
+        }
+
+        .intro-container{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .intro-container img{
+            width: 30%;
+            min-width: 400px;
+        }
+
+        #loader {
+            font-size: 25px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="intro" class="intro-container">
+        <h1>계묘년 토끼가 당신의 운세를 알려드립니다🤩</h1>
+        <img src="rabbit.png" alt="chatdoge">
+        <label for="date" style="font-size:20px">생년월일</label>
+        <input id="date" type="date">
+        <label for="hour" style="font-size:20px">태어난 시간</label>
+        <select id="hour" name="hour">
+            <option value="">모릅니다</option>
+            <option value="00">00</option>
+            <option value="01">01</option>
+            <option value="02">02</option>
+            <option value="03">03</option>
+            <option value="04">04</option>
+            <option value="05">05</option>
+            <option value="06">06</option>
+            <option value="07">07</option>
+            <option value="08">08</option>
+            <option value="09">09</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <option value="19">19</option>
+            <option value="20">20</option>
+            <option value="21">21</option>
+            <option value="22">22</option>
+            <option value="23">23</option>
+        </select>
+        <button onclick="start()">오늘의 운세보기!!❤</button>
+    </div>
+    <div id="chat" class="chat-container"  style="display: none;">
+        <div class="chat-box">
+            <div class="chat-message">
+                <p class="assistant">운세에 대해서라면, 무엇이든지 물어보세요!😊</p>
+            </div>
+        </div>
+        <div id="loader" class="loader" style="display: none;">
+            <i class="fa fa-spinner fa-spin"></i>
+        </div>
+        <div class="chat-input">
+            <input type="text" placeholder="Type your message here...">
+            <button id="btn" onclick="spinner()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.querySelector('.chat-box');
+        let userMessages = [];
+        let assistantMessages = [];
+        let myDateTime = ''
+
+        function spinner() {
+            document.getElementById('loader').style.display = "block";
+        }
+
+        // 기본정보를 입력으로부터 가져와서 보냄.
+        function start() {
+            const date = document.getElementById('date').value;
+            const hour = document.getElementById('hour').value;
+            if (date === '') {
+                alert('생년월일을 입력해주세요.');
+                return;
+            }
+            myDateTime = date + hour;
+
+            // 현재 마주하고 있는 화면의 id에 따라서 어떤 화면을 띄우고 없앨 지 세팅
+            document.getElementById("intro").style.display = "none";
+            document.getElementById("chat").style.display = "block";
+        }
+
+        const sendMessage = async () => {
+            const chatInput = document.querySelector('.chat-input input');
+            const chatMessage = document.createElement('div');
+            chatMessage.classList.add('chat-message');
+            chatMessage.innerHTML = `
+    <p>${chatInput.value}</p>
+  `;
+            chatBox.appendChild(chatMessage);
+            userMessages.push(chatInput.value); // 유저 메세지 추가
+            chatInput.value = '';
+
+            const response = await fetch('(배포한 서버 - 프론트 연동 주소)', {
+                method: 'POST',
+                headers: {
+                    // 'Access-Control-Allow-Origin' : '*',
+                    'Content-Type': 'application/json'
+                },
+                // input창의 정보를 담아서 서버로 보냄
+                // 모든 채팅정보를 담아서 보내야함!
+                // 유저가 입력한 대화 & 어시스턴트(AI)가 작성한 대화
+                body: JSON.stringify({
+                    myDateTime: myDateTime,
+                    userMessages : userMessages,
+                    assistantMessages :  assistantMessages,
+                })
+            });
+
+            const data = await response.json();
+            document.getElementById('loader').style.display = "none";
+
+            assistantMessages.push(data.assistant); // 어시스턴트(AI)메세지 추가
+
+            const astrologerMessage = document.createElement('div');
+            astrologerMessage.classList.add('chat-message');
+            astrologerMessage.innerHTML = `
+    <p class='assistant'>${data.assistant}</p>
+  `;
+            chatBox.appendChild(astrologerMessage);
+        };
+
+        document.querySelector('.chat-input button').addEventListener('click', sendMessage);
+    </script>
+
+</body>
+</html>
